@@ -96,16 +96,16 @@ Die Oberfläche läuft auf <http://localhost:5173>. Der Vite-Entwicklungsserver 
 VITE_BACKEND_URL=http://192.168.1.20:8000 npm run dev
 ```
 
-## Start mit Docker
+## Einfachster Start: eine Web-App mit Docker
 
 ```bash
 docker compose up --build
 ```
 
-- Oberfläche: <http://localhost:8080>
+- Web-App: <http://localhost:8000>
 - API: <http://localhost:8000/api/health>
 
-Beide Container laufen ohne Root. Im Frontend-Container leitet nginx `/api` an das Backend weiter. Jobdaten liegen im benannten Volume `job-data` und werden nach 24 Stunden automatisch aufgeräumt (einstellbar über `VCUTTING_JOB_RETENTION_SECONDS`).
+Es gibt nur noch einen Container: FastAPI liefert die gebaute Oberfläche und die API auf derselben Adresse aus. Dadurch entfallen nginx, CORS zwischen zwei Diensten und die getrennte Bereitstellung. Der Container läuft ohne Root. Jobdaten liegen im benannten Volume `job-data` und werden nach 24 Stunden automatisch aufgeräumt (einstellbar über `VCUTTING_JOB_RETENTION_SECONDS`).
 
 Beenden und aufräumen:
 
@@ -122,35 +122,15 @@ docker compose down --volumes
 | `VCUTTING_PX_PER_MM` | `4.0` | Auflösung des internen Arbeitsrasters |
 | `VCUTTING_JOB_RETENTION_SECONDS` | `86400` | Aufbewahrungsfrist der Jobverzeichnisse |
 
-### Bereitstellung ohne Docker
+### Als Web-App bereitstellen
 
-Frontend und Backend sind getrennt. Das Frontend ist eine statische Seite und läuft auf jedem Hoster; das Backend braucht Python mit OpenCascade und lässt sich nicht als Serverless-Funktion betreiben.
+Die komplette Anwendung steckt in einem Docker-Image. Ein Hoster muss deshalb Container mit einem dauerhaft laufenden Prozess unterstützen. GitHub Pages, ein rein statisches Netlify-Projekt und klassische Serverless-Funktionen reichen nicht aus, weil OpenCascade die STEP-Datei serverseitig erzeugt und wieder einliest.
 
-**Frontend auf Vercel oder Netlify:**
+**Render:** Im Repository liegt eine `render.yaml`. In Render genügt `New` → `Blueprint` → dieses Repository auswählen. Oberfläche und API werden gemeinsam bereitgestellt; eine zusätzliche URL oder CORS-Konfiguration ist nicht nötig.
 
-1. Projektstamm auf `frontend/` setzen, Build-Befehl `npm run build`, Ausgabeverzeichnis `dist`.
-2. Umgebungsvariable `VITE_API_BASE_URL` auf die öffentliche Adresse des Backends setzen, zum Beispiel `https://vcutting-api.example.com/api`.
-3. Im Backend `VCUTTING_CORS_ORIGINS` um die Adresse des Frontends erweitern.
+**Andere Hoster:** Das Root-`Dockerfile` verwenden und Port `8000` beziehungsweise die vom Hoster gesetzte Variable `PORT` freigeben. Geeignet sind beispielsweise Railway, Fly.io, Hetzner oder eine eigene VM.
 
-Alternativ ohne CORS: eine Weiterleitung einrichten. Für Netlify in `frontend/netlify.toml`:
-
-```toml
-[[redirects]]
-  from = "/api/*"
-  to = "https://vcutting-api.example.com/api/:splat"
-  status = 200
-  force = true
-```
-
-Für Vercel in `frontend/vercel.json`:
-
-```json
-{ "rewrites": [{ "source": "/api/:path*", "destination": "https://vcutting-api.example.com/api/:path*" }] }
-```
-
-Dann bleibt `VITE_API_BASE_URL` auf dem Standardwert `/api`.
-
-**Backend als eigener Dienst:** Das Image aus `backend/Dockerfile` läuft auf jeder Plattform, die Container mit dauerhaftem Prozess und Schreibrechten auf ein Datenverzeichnis ausführt — Fly.io, Render, Railway, Hetzner, eine eigene VM. Es ist bewusst kein Cloudanbieter fest eingebaut.
+Für lokale Entwicklung können Frontend und Backend weiterhin getrennt gestartet werden. Für Docker und Hosting wird ausschließlich das Root-`Dockerfile` benötigt.
 
 ## Bedienung
 

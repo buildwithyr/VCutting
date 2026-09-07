@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import health, jobs
 from app.api.deps import get_store
@@ -56,10 +58,18 @@ app.include_router(jobs.router, prefix="/api")
 app.include_router(jobs.config_router, prefix="/api")
 
 
-@app.get("/", include_in_schema=False)
-def root() -> dict:
-    return {
-        "name": "Image to V-Cutting",
-        "docs": "/docs",
-        "health": "/api/health",
-    }
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "static"
+
+
+# Im Produktions-Container liegen Frontend und API auf derselben Adresse.
+# Lokal bleibt der Vite-Entwicklungsserver weiterhin moeglich.
+if FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+else:
+    @app.get("/", include_in_schema=False)
+    def root() -> dict:
+        return {
+            "name": "Image to V-Cutting",
+            "docs": "/docs",
+            "health": "/api/health",
+        }

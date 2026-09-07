@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vcutting
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: VCUTTING_DATA_DIR
+        value: /data
+      - key: VCUTTING_JOB_RETENTION_SECONDS
+        value: "86400"
