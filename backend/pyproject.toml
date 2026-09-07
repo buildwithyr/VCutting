@@ -1,0 +1,25 @@
+[project]
+name = "vcutting-backend"
+version = "0.1.0"
+description = "Image to V-Cutting Backend: Bild zu CATIA-kompatiblen V-Carving-Bahnen"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+exclude = [".venv", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RET"]
+ignore = [
+  "B008",   # FastAPI Depends/File im Default ist idiomatisch
+  "SIM108", # Ternaries erzwingen macht Geometriecode unleserlich
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

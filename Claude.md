@@ -27,10 +27,37 @@ Save tokens, save time. Straight solutions.
 
 ## Quick Project Info
 
-**Project Name:** [YOUR PROJECT NAME]  
-**Purpose:** [Brief description]  
-**Tech Stack:** [e.g., Vanilla HTML/CSS/JS]
+**Project Name:** Image to V-Cutting  
+**Purpose:** Wandelt Bilder in CATIA-kompatible V-Carving-Bahnen (STEP) um. Zusätzlich ein Relief-Modus mit STL-Ausgabe.  
+**Tech Stack:** React + TypeScript + Vite (Frontend), Python 3.11 + FastAPI + OpenCV + OpenCascade/OCP (Backend), Docker Compose
+
+## Struktur
+
+```
+frontend/   React-Oberfläche, sechs Schritte, Vitest
+backend/    FastAPI, Bildpipeline, Geometrie, STEP/STL, pytest
+shared/     JSON-Schema des Projektformats
+examples/   Beispielprojekte und Skript für ein Testmotiv
+docs/       Algorithmen, CATIA-Anleitung, Screenshots
+```
+
+## Befehle
+
+```bash
+docker compose up --build                                     # alles zusammen
+cd backend  && uvicorn app.main:app --reload --port 8000      # Backend
+cd frontend && npm run dev                                    # Frontend
+cd backend  && ruff check . && pytest -q                      # 137 Tests
+cd frontend && npm run lint && npm run typecheck && npm test   # 79 Tests
+```
+
+## Nicht anfassen ohne Grund
+
+- Das Projektformat lebt an **drei** Stellen deckungsgleich: `shared/schemas/`, `backend/app/models/config.py`, `frontend/src/types/project.ts`.
+- Der STEP-Export erzeugt bewusst **keine** einzige große B-Spline, sondern eine Kurve vom Grad 1 je Rasterlinie. Das ist der Grund, warum ältere CATIA-Übersetzer die Datei lesen können.
+- Die STEP-Datei wird nach dem Schreiben **immer** erneut eingelesen und geprüft. Diese Prüfung ist Teil des Produkts, nicht Beiwerk.
+- Es werden **keine** .hop- oder .hopx-Dateien erzeugt. Diese Formate sind postprozessorspezifisch.
 
 ---
 
-*Last updated: [DATE]*
+*Last updated: 2026-09-07*

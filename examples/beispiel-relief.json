@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "mode": "relief",
+  "project": {
+    "name": "Beispiel Relief"
+  },
+  "plate": {
+    "width_mm": 200,
+    "height_mm": 150,
+    "thickness_mm": 6,
+    "top_z_mm": 0,
+    "margin_mm": 10
+  },
+  "tool": {
+    "id": "T246",
+    "name": "V-Nutfraeser",
+    "type": "v_bit",
+    "angle_deg": 90
+  },
+  "carving": {
+    "max_depth_mm": 1.2,
+    "line_spacing_mm": 2,
+    "orientation": "vertical",
+    "path_mode": "serpentine",
+    "clearance_z_mm": 1,
+    "motif_margin_mm": 5,
+    "tone_threshold": 0.055,
+    "depth_gamma": 1.0
+  },
+  "cleanup": {
+    "remove_speckles": true,
+    "keep_largest_component": true,
+    "smooth_raster_edges": true,
+    "transparent_background": true,
+    "background_threshold": 0.95,
+    "min_component_area_ratio": 0.0005
+  },
+  "simplification": {
+    "mode": "catia_strong",
+    "sample_distance_mm": 2,
+    "smoothing_distance_mm": 2,
+    "rdp_tolerance_mm": 0.18,
+    "target_reduction_percent": 90
+  },
+  "relief": {
+    "height_mm": 3,
+    "invert": false,
+    "smoothing_mm": 0.4,
+    "base_thickness_mm": 2,
+    "sample_distance_mm": 0.4
+  },
+  "output": {
+    "include_reference_plate": true,
+    "step": false,
+    "stl": true,
+    "preview_png": true
+  }
+}
