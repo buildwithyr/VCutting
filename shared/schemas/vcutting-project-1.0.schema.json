@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/buildwithyr/vcutting/shared/schemas/vcutting-project-1.0.schema.json",
+  "title": "Image to V-Cutting Projekt",
+  "description": "Versioniertes Projektformat fuer die Umwandlung von Bildern in V-Carving-Bahnen. Alle Laengen in Millimetern.",
+  "type": "object",
+  "required": ["schema_version", "project", "plate", "tool", "carving", "cleanup", "simplification", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Version des Projektformats. Aeltere Versionen werden beim Import migriert."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["v_cutting", "relief"],
+      "default": "v_cutting",
+      "description": "Bearbeitungsart. relief ist Phase 2 und erzeugt statt einer Fraesbahn ein Hoehenrelief."
+    },
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "created_at": { "type": "string", "description": "ISO-8601 Zeitstempel" }
+      }
+    },
+    "plate": {
+      "type": "object",
+      "required": ["width_mm", "height_mm", "thickness_mm"],
+      "additionalProperties": false,
+      "properties": {
+        "width_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 2000, "default": 400 },
+        "height_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 2000, "default": 400 },
+        "thickness_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 200, "default": 3 },
+        "top_z_mm": { "type": "number", "default": 0, "description": "Z-Wert der Plattenoberseite. Der MVP verwendet 0." },
+        "margin_mm": { "type": "number", "minimum": 0, "default": 20, "description": "Rand zwischen Motiv und Plattenkante." }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "required": ["id", "name", "type", "angle_deg"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 32, "default": "T246" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 80, "default": "V-Nutfraeser" },
+        "type": { "type": "string", "enum": ["v_bit"], "default": "v_bit" },
+        "angle_deg": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 180, "default": 90 }
+      }
+    },
+    "carving": {
+      "type": "object",
+      "required": ["max_depth_mm", "line_spacing_mm", "orientation", "path_mode", "clearance_z_mm"],
+      "additionalProperties": false,
+      "properties": {
+        "max_depth_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 100, "default": 1.2 },
+        "line_spacing_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 100, "default": 2 },
+        "orientation": { "type": "string", "enum": ["vertical", "horizontal"], "default": "vertical" },
+        "path_mode": { "type": "string", "enum": ["serpentine"], "default": "serpentine" },
+        "clearance_z_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 100, "default": 1 },
+        "motif_margin_mm": { "type": "number", "minimum": 0, "maximum": 200, "default": 5 },
+        "tone_threshold": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.055 },
+        "depth_gamma": { "type": "number", "exclusiveMinimum": 0, "maximum": 10, "default": 1.0 }
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "remove_speckles": { "type": "boolean", "default": true },
+        "keep_largest_component": { "type": "boolean", "default": true },
+        "smooth_raster_edges": { "type": "boolean", "default": true },
+        "transparent_background": { "type": "boolean", "default": true },
+        "background_threshold": {
+          "type": "number", "minimum": 0, "maximum": 1, "default": 0.95,
+          "description": "Nur relevant ohne Alphakanal. Pixel heller als dieser Wert gelten als Hintergrund."
+        },
+        "min_component_area_ratio": {
+          "type": "number", "minimum": 0, "maximum": 0.5, "default": 0.0005,
+          "description": "Kleinste behaltene Komponente relativ zur Bildflaeche."
+        }
+      }
+    },
+    "simplification": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["catia_strong", "catia_normal", "fine"], "default": "catia_strong" },
+        "sample_distance_mm": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 50 },
+        "smoothing_distance_mm": { "type": ["number", "null"], "minimum": 0, "maximum": 50 },
+        "rdp_tolerance_mm": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 10 },
+        "target_reduction_percent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+      }
+    },
+    "relief": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Nur fuer mode = relief.",
+      "properties": {
+        "height_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 200, "default": 2 },
+        "invert": { "type": "boolean", "default": false },
+        "smoothing_mm": { "type": "number", "minimum": 0, "maximum": 50, "default": 0.5 },
+        "base_thickness_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 200, "default": 1 },
+        "sample_distance_mm": { "type": "number", "exclusiveMinimum": 0, "maximum": 10, "default": 0.5 }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include_reference_plate": { "type": "boolean", "default": true },
+        "step": { "type": "boolean", "default": true },
+        "stl": { "type": "boolean", "default": false },
+        "preview_png": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}
