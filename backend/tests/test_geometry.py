@@ -69,6 +69,19 @@ class TestRemainingThickness:
         )
         assert any("Nutbreite" in warning for warning in config.warnings())
 
+    def test_relief_modus_warnt_nicht_ueber_nutbreite(self):
+        """Im Relief-Modus entsteht keine Fraesbahn, also auch keine Nut."""
+        config = ProjectConfig.model_validate(
+            {
+                "schema_version": "1.0",
+                "mode": "relief",
+                "plate": {"thickness_mm": 6},
+                "carving": {"max_depth_mm": 1.2, "line_spacing_mm": 1.0},
+                "simplification": {"mode": "fine"},
+            }
+        )
+        assert config.warnings() == []
+
     def test_tiefe_darf_platte_nicht_durchtrennen(self):
         with pytest.raises(ValueError, match="max_depth_mm"):
             ProjectConfig.model_validate(

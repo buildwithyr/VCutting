@@ -61,6 +61,26 @@ export function configNotices(config: ProjectConfig): Notice[] {
   if (!tool.id.trim()) {
     notices.push({ severity: 'error', field: 'tool.id', message: 'Die Werkzeugnummer darf nicht leer sein.' });
   }
+  // Ab hier gelten die Regeln der Fräsbahn. Im Relief-Modus entsteht keine,
+  // dort zaehlen stattdessen Basisstaerke und Reliefhoehe.
+  if (config.mode === 'relief') {
+    const total = config.relief.base_thickness_mm + config.relief.height_mm;
+    if (!(config.relief.height_mm > 0) || !(config.relief.base_thickness_mm > 0)) {
+      notices.push({
+        severity: 'error',
+        field: 'relief.height_mm',
+        message: 'Reliefhoehe und Basisstaerke muessen groesser als 0 sein.',
+      });
+    } else if (total > plate.thickness_mm) {
+      notices.push({
+        severity: 'error',
+        field: 'relief.height_mm',
+        message: `Basisstaerke und Reliefhoehe ergeben ${total.toFixed(2)} mm und ueberschreiten die Plattenstaerke von ${plate.thickness_mm} mm.`,
+      });
+    }
+    return notices;
+  }
+
   if (!(carving.max_depth_mm > 0)) {
     notices.push({ severity: 'error', field: 'carving.max_depth_mm', message: 'Die maximale Frästiefe muss groesser als 0 sein.' });
   }
@@ -116,17 +136,6 @@ export function configNotices(config: ProjectConfig): Notice[] {
       field: 'simplification.mode',
       message: 'Die Stufe "Fein" erzeugt sehr viele Stuetzpunkte. Aeltere CATIA-STEP-Uebersetzer koennen dabei sehr langsam werden.',
     });
-  }
-
-  if (config.mode === 'relief') {
-    const total = config.relief.base_thickness_mm + config.relief.height_mm;
-    if (total > plate.thickness_mm) {
-      notices.push({
-        severity: 'error',
-        field: 'relief.height_mm',
-        message: `Basisstaerke und Reliefhoehe ergeben ${total.toFixed(2)} mm und ueberschreiten die Plattenstaerke von ${plate.thickness_mm} mm.`,
-      });
-    }
   }
 
   return notices;

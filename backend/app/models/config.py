@@ -202,6 +202,10 @@ class ProjectConfig(StrictModel):
     def warnings(self) -> list[str]:
         """Nicht blockierende Hinweise fuer Oberflaeche und Prüfbericht."""
         out: list[str] = []
+        if self.mode != "v_cutting":
+            # Nutbreite, Reststaerke und Bahnrichtung spielen im Relief-Modus
+            # keine Rolle, dort entsteht keine Fraesbahn.
+            return out
         if self.remaining_thickness_mm < 0.5:
             out.append(
                 f"Reststaerke betraegt nur {self.remaining_thickness_mm:.2f} mm. "

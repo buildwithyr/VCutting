@@ -98,6 +98,28 @@ describe('configNotices', () => {
     expect(hasBlockingError(config)).toBe(true);
   });
 
+  it('schweigt im Relief-Modus zu Nutbreite und Reststaerke', () => {
+    const config = defaultConfig();
+    config.mode = 'relief';
+    // Werte, die im V-Cutting-Modus mehrere Meldungen ausloesen wuerden.
+    config.carving.line_spacing_mm = 0.5;
+    config.tool.angle_deg = 120;
+    config.simplification.mode = 'fine';
+    const notices = configNotices(config);
+    expect(notices.some((n) => n.message.includes('Nutbreite'))).toBe(false);
+    expect(notices.some((n) => n.message.includes('Fein'))).toBe(false);
+    expect(hasBlockingError(config)).toBe(false);
+  });
+
+  it('blockiert im Relief-Modus keine Frästiefe groesser als die Platte', () => {
+    // Die Frästiefe wird im Relief-Modus nicht verwendet. Das Backend
+    // erzwingt sie dort ebenfalls nicht.
+    const config = defaultConfig();
+    config.mode = 'relief';
+    config.carving.max_depth_mm = 99;
+    expect(hasBlockingError(config)).toBe(false);
+  });
+
   it.each([
     ['plate.thickness_mm', (c: ReturnType<typeof defaultConfig>) => (c.plate.thickness_mm = 0)],
     ['carving.line_spacing_mm', (c: ReturnType<typeof defaultConfig>) => (c.carving.line_spacing_mm = 0)],

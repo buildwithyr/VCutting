@@ -4,18 +4,14 @@ import { defineConfig } from 'vite';
 
 const backendTarget = process.env.VITE_BACKEND_URL ?? 'http://localhost:8000';
 
+// Im Entwicklungsbetrieb laeuft alles ueber einen Ursprung, dadurch entfallen
+// CORS-Sonderfaelle im Browser. Im Container uebernimmt nginx diese Rolle.
+const apiProxy = { '/api': { target: backendTarget, changeOrigin: true } };
+
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: true,
-    port: 5173,
-    // Im Entwicklungsbetrieb laeuft alles ueber einen Ursprung, dadurch
-    // entfallen CORS-Sonderfaelle im Browser.
-    proxy: {
-      '/api': { target: backendTarget, changeOrigin: true },
-    },
-  },
-  preview: { host: true, port: 4173 },
+  server: { host: true, port: 5173, proxy: apiProxy },
+  preview: { host: true, port: 4173, proxy: apiProxy },
   test: {
     globals: true,
     environment: 'jsdom',
