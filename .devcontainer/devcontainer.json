@@ -1,0 +1,40 @@
+{
+  "name": "Image to V-Cutting",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+
+  // Laeuft einmal beim Anlegen des Codespace: Systembibliotheken fuer
+  // OpenCascade und OpenCV, danach die Abhaengigkeiten beider Teile.
+  "onCreateCommand": "bash .devcontainer/setup.sh",
+
+  // Laeuft bei jedem Oeffnen, auch nach dem Aufwachen aus dem Ruhezustand.
+  "postAttachCommand": "bash .devcontainer/start.sh",
+
+  "forwardPorts": [5173, 8000],
+  "portsAttributes": {
+    "5173": {
+      "label": "Oberflaeche",
+      "onAutoForward": "openPreview"
+    },
+    "8000": {
+      "label": "Backend-API",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/home/vscode/.venv-vcutting/bin/python"
+      }
+    }
+  }
+}

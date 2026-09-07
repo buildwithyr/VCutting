@@ -11,6 +11,7 @@ Wandelt hochgeladene Bilder in CATIA-kompatible V-Carving-Bahnen um und exportie
 - [Zweck](#zweck)
 - [Screenshots](#screenshots)
 - [Voraussetzungen](#voraussetzungen)
+- [Start ohne Terminal (GitHub Codespaces)](#start-ohne-terminal-github-codespaces)
 - [Lokaler Start](#lokaler-start)
 - [Start mit Docker](#start-mit-docker)
 - [Bedienung](#bedienung)
@@ -67,6 +68,32 @@ Unter Linux brauchen OpenCascade und OpenCV einige Systembibliotheken:
 ```bash
 sudo apt-get install -y libgl1 libglu1-mesa libxrender1 libxext6 libsm6 libgomp1
 ```
+
+## Start ohne Terminal (GitHub Codespaces)
+
+Wer kein Terminal zur Hand hat — etwa am Telefon oder Tablet — startet die App direkt aus GitHub heraus. Es ist kein Befehl nötig.
+
+1. Im Repository auf **Code** tippen, Reiter **Codespaces**, dann **Create codespace on main**.
+2. Warten. Beim ersten Mal dauert die Einrichtung einige Minuten, weil OpenCascade rund 400 MB herunterlädt. Der Fortschritt ist sichtbar.
+3. Danach starten Backend und Frontend von selbst. Sobald sie laufen, meldet sich ein Fenster mit dem Hinweis auf Port 5173.
+4. Meldet sich nichts: Reiter **Ports** beziehungsweise **Anschlüsse** öffnen und dort Port **5173** antippen.
+
+Die Konfiguration liegt in `.devcontainer/`:
+
+| Datei | Aufgabe |
+| --- | --- |
+| `devcontainer.json` | Python 3.11, Node 22, weitergeleitete Ports 5173 und 8000 |
+| `setup.sh` | einmalig: Systembibliotheken, Python- und Node-Abhängigkeiten |
+| `start.sh` | bei jedem Öffnen: startet beide Dienste, sofern sie nicht schon laufen |
+
+Nützlich zu wissen:
+
+- Der Codespace **schläft nach 30 Minuten Inaktivität ein**. Beim nächsten Öffnen fährt `start.sh` alles automatisch wieder hoch, diesmal in Sekunden statt Minuten.
+- Neu starten, falls doch etwas klemmt: `bash .devcontainer/start.sh`
+- Protokolle ansehen: `tail -f /tmp/vcutting-backend.log` beziehungsweise `/tmp/vcutting-frontend.log`
+- Codespaces ist im persönlichen Konto bis 60 Kernstunden im Monat kostenlos. Ein nicht mehr gebrauchter Codespace gehört unter <https://github.com/codespaces> gelöscht, sonst zählt der Speicher weiter.
+
+> **GitHub Pages ist nicht die App.** Unter `buildwithyr.github.io/VCutting` steht nur diese README als Webseite. Pages liefert ausschließlich statische Dateien aus und kann den Python-Prozess mit OpenCascade nicht ausführen.
 
 ## Lokaler Start
 
