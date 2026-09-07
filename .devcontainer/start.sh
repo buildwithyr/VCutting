@@ -60,19 +60,32 @@ if ! is_up 8000/api/health; then
     exit 1
 fi
 
+echo
+echo "------------------------------------------------------------------"
+echo "Alles laeuft."
+echo
+
+# In einem Codespace ist die oeffentliche Adresse aus zwei Variablen
+# zusammensetzbar. Sie hier auszugeben erspart die Suche im Ports-Reiter,
+# was besonders auf kleinen Bildschirmen hilft.
+if [ -n "${CODESPACE_NAME:-}" ] && [ -n "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}" ]; then
+    echo "  Oberflaeche oeffnen (antippen):"
+    echo
+    echo "    https://${CODESPACE_NAME}-5173.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+    echo
+    echo "  Falls die Adresse nicht anklickbar ist: Reiter \"Ports\""
+    echo "  beziehungsweise \"Anschluesse\", dann Port 5173."
+else
+    echo "  Oberflaeche oeffnen: http://localhost:5173"
+fi
+
 cat <<'HINWEIS'
 
-------------------------------------------------------------------
-Alles laeuft.
+  Protokolle:
+      tail -f /tmp/vcutting-frontend.log
+      tail -f /tmp/vcutting-backend.log
 
-Oberflaeche oeffnen: Reiter "Ports" (Anschluesse), dort Port 5173
-antippen. Beim ersten Start meldet sich das Fenster meist von selbst.
-
-Protokolle:
-    tail -f /tmp/vcutting-frontend.log
-    tail -f /tmp/vcutting-backend.log
-
-Neu starten:
-    bash .devcontainer/start.sh
+  Neu starten:
+      bash .devcontainer/start.sh
 ------------------------------------------------------------------
 HINWEIS
